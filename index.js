@@ -45,7 +45,7 @@ app.get('/questions', (req, res) => res.sendFile(path.join(__dirname, 'questions
 
 app.post('/game', (req, res) => {
     const id = uuid();
-    const obj = { id: id, plan: req.body.path.map(step => { return { action: step.Action, explain: step.explain } }), mapId: req.body.mapId, planTime: req.body.path.reduce((sum, step) => step.time ? sum + parseInt(step.time) : sum, 0), planSize: req.body.path.length };
+    const obj = { id: id, plan: req.body.path.map(step => { return { action: step.Action } }), mapId: req.body.mapId, planTime: req.body.path.reduce((sum, step) => step.time ? sum + parseInt(step.time) : sum, 0), planSize: req.body.path.length };
     users[id] = obj;
     res.send(id);
 });
