@@ -2,7 +2,8 @@
 <html>
 
 <head>
-
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+    crossorigin="anonymous"></script>
 </head>
 <body>
         <font color="red" size = "6">Instructions:</font>
@@ -34,6 +35,8 @@
 
         <button type="button" style="display:block;padding:20px;height:100px; margin:auto">Start Game</button>
 
-
+        <script type='text/javascript'>
+            $('button').click(_ => window.location.href = '/game');
+        </script>
 </body>
 </html>
