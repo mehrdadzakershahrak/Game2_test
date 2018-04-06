@@ -100,12 +100,15 @@
             left: 3
         };
 
+        var rooms = {};
+
         function setMap(id) {
             const map = maps[id];
             mapId = id;
-            player.position = map.start;
+            player.position = [...map.start];
             player.tileFrom = map.start.map(px => Math.floor(px / 40.0));
             player.tileTo = map.start.map(px => Math.floor(px / 40.0));
+            map.gameMap.map((tile, i) => [tile, { x: i % 8, y: Math.floor(i / 8) }]).filter(tile => tile[0] == 2).forEach((tile, i) => rooms[tile[1].x + tile[1].y * 6 - 6] = i + 1);
             return map.gameMap;
         }
 
@@ -220,7 +223,7 @@
                     this.plan.push({ Action: `Room-visited`, time: 0 });
                     if (isAllVisited(gameMap)) {
                         finished = true;
-                        $.post("/game", { path: this.plan, mapId: mapId }, data => {
+                        $.post("/game", { path: this.convertPlan(), mapId: mapId }, data => {
                             sessionStorage.setItem('explainabilityUUID', data);
                             window.location.href = '/questions';
                         });
@@ -392,6 +395,30 @@
 
             lastFrameTime = currentFrameTime;
             requestAnimationFrame(drawGame);
+        }
+
+        Character.prototype.convertPlan = function () {
+            let currLoc = (m => m[0] + m[1] * 6 - 6)(maps[mapId].start.map(px => Math.floor(px / 40.0)));
+            let numObj = 0;
+            let lastRoom = 'dummy-room';
+            return this.plan.map(p => {
+                switch (p.Action) {
+                    case 'left':
+                        return { Action: p.obstacle ? `remove-obstacle rover1 obstacle${++numObj} loc${currLoc} loc${--currLoc}` : `move rover1 loc${currLoc} loc${--currLoc}`, explain: p.explain };
+                    case 'right':
+                        return { Action: p.obstacle ? `remove-obstacle rover1 obstacle${++numObj} loc${currLoc} loc${++currLoc}` : `move rover1 loc${currLoc} loc${++currLoc}`, explain: p.explain };
+                    case 'up':
+                        return { Action: p.obstacle ? `remove-obstacle rover1 obstacle${++numObj} loc${currLoc} loc${currLoc -= 6}` : `move rover1 loc${currLoc} loc${currLoc -= 6}`, explain: p.explain };
+                    case 'down':
+                        return { Action: p.obstacle ? `remove-obstacle rover1 obstacle${++numObj} loc${currLoc} loc${currLoc += 6}` : `move rover1 loc${currLoc} loc${currLoc += 6}`, explain: p.explain };
+                    case 'Room-visited':
+                        lastRoom = rooms[currLoc];
+                        return { Action: `visit-room rover1 room${lastRoom} loc${currLoc}`, explain: p.explain };
+                    default:
+                        let loc = (l => parseInt(l[0]) + parseInt(l[1]) * 6 - 6)(p.Action.split(/[()]/)[1].split(','));
+                        return { Action: `set-to-visit room${rooms[loc]} ${lastRoom == 'dummy-room' ? lastRoom : `room${lastRoom}`}`, explain: p.explain };
+                }
+            });
         }
     </script>
 
