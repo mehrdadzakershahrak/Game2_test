@@ -115,7 +115,7 @@
             this.timeMoved = 0;
             this.dimensions = [30, 30];
             this.position = [45, 45];
-            this.delayMove = 700;
+            this.delayMove = 1000;
             this.direction = directions.up;
 
             this.sprites = {};
@@ -312,7 +312,7 @@
                     path.push(search.move);
                     search = search.parent;
                 }
-                player.delayMove = 500;
+                player.delayMove = 600;
                 player.stack = path;
             });
             tileset = new Image();
@@ -357,7 +357,7 @@
                         calculatedGoal = calculatedGoal.parent;
                     }
                     player.stack = path;
-                    player.delayMove = 700;
+                    player.delayMove = 1000;
                 }
             }
 
